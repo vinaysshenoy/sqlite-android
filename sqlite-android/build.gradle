@@ -154,7 +154,7 @@ task downloadSqlite(type: Download) {
 
 task installSqlite(dependsOn: downloadSqlite, type: Copy) {
     from zipTree(downloadSqlite.dest).matching {
-        include '*/sqlite3.*'
+        include '*/sqlite3*'
         eachFile { it.setPath(it.getName()) }
     }
     into 'src/main/jni/sqlite'
