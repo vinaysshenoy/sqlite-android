@@ -54,7 +54,15 @@ publish.dependsOn "assembleRelease"
 bintrayUpload.dependsOn "assembleRelease"
 
 ext {
-    sqliteDistributionUrl = 'http://sqlite.org/2018/sqlite-amalgamation-3240000.zip'
+    sqliteDistributionUrl = 'https://sqlite.org/2018/sqlite-amalgamation-3240000.zip'
+
+    /*
+    * Unlike the amalgamation, we don't have a static url to download this particular file.
+    *
+    * So, we go to the tags at https://sqlite.org/src/taglist, go to the particular release,
+    * navigate to the file and get the url for the raw file and use it here
+    **/
+    spellfixDistributionUrl = 'https://sqlite.org/src/artifact/54d650f44f3a69a8'
     pomXml = {
         resolveStrategy = Closure.DELEGATE_FIRST
         name project.name
@@ -152,7 +160,12 @@ task downloadSqlite(type: Download) {
     dest 'src/main/jni/sqlite.zip'
 }
 
-task installSqlite(dependsOn: downloadSqlite, type: Copy) {
+task downloadSpellfix(type: Download) {
+    src project.spellfixDistributionUrl
+    dest 'src/main/jni/sqlite/spellfix.c'
+}
+
+task installSqlite(dependsOn: [downloadSqlite, downloadSpellfix], type: Copy) {
     from zipTree(downloadSqlite.dest).matching {
         include '*/sqlite3*'
         eachFile { it.setPath(it.getName()) }
